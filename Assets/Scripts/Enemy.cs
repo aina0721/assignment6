@@ -1,12 +1,20 @@
-using UnityEngine;
 using System.Collections;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Enemy : MonoBehaviour
 {
+    [SerializeField]
+    Text Text;
+    float player_home = 20; 
+    float Counter = 0; 
+
     Vector3 pos;
 
     // 移動フラグ（trueのとき移動する）
     bool isMove = true;
+    bool isAttack;
 
     void Start()
     {
@@ -19,6 +27,24 @@ public class Enemy : MonoBehaviour
         if (isMove)
         {
             transform.position += pos * Time.deltaTime;
+        }
+
+        if (isAttack)
+        {
+            Counter += Time.deltaTime;
+
+            if (Counter >= 1.0f)
+            {
+                player_home -= 1;
+                Counter = 0;
+            }
+
+            Text.text = player_home.ToString("F0"); // 整数で表示
+
+            if (player_home == 0)
+            {
+                SceneManager.LoadScene("GameOver");
+            }
         }
     }
 
@@ -47,12 +73,7 @@ public class Enemy : MonoBehaviour
         if (collision.gameObject.tag == "Player_home") 
         {
             isMove = false; // 移動を停止
-
-            // 相手のHPスクリプトを取得
-            HP hitPoint = collision.GetComponent<HP>();
-
-            // ダメージ処理をコルーチンで開始
-            StartCoroutine(AttackAction(hitPoint));
+            isAttack = true;
         }
     }
 
